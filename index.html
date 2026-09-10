@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sürpriz!</title>
+    <style>
+        body {
+            background-color: #222;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: sans-serif;
+            text-align: center;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            background-color: #ff4757;
+            color: white;
+            font-weight: bold;
+        }
+        img {
+            max-width: 80%;
+            display: none;
+            margin-top: 20px;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Tebrikler! Ödül Kazandınız 🎉</h2>
+    <p>Ödülü almak için aşağıdaki butona tıklayın:</p>
+    <button onclick="moo()">Tıkla ve Gör</button>
+
+    <img id="cowImg" src="https://m.media-amazon.com/images/I/71cQ11E9qAL._AC_SL1500_.jpg" alt="İnek">
+
+    <script>
+        function moo() {
+            // Ekrana inek resmini getir
+            document.getElementById('cowImg').style.display = 'block';
+
+            // Tarayıcının konuşma motorunu kullanarak "Mööö" dedirt
+            let utterance = new SpeechSynthesisUtterance("Möööööööö!");
+            utterance.lang = "tr-TR";
+            utterance.pitch = 0.5; // Sesi biraz kalınlaştır
+            utterance.rate = 0.8;  // Yavaşça uzat
+            window.speechSynthesis.speak(utterance);
+        }
+    </script>
+
+</body>
+</html>
