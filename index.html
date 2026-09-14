@@ -153,28 +153,24 @@
         <div class="cow-text">MAL SEMANUR HER ŞEYE İNANMA!<br>MÖÖÖÖÖÖÖÖÖ!</div>
     </div>
 
+    <!-- Instagram Engeline Takılmayan Gömülü Ses Dosyası -->
+    <audio id="mooAudio" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFb3B2eI2PjpC4vcHG0NfZ297e293c3t3c3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d" type="audio/wav">
+    </audio>
+
     <script>
         let isOpened = false;
-        let audioCtx = null;
-        let speechUtterance = null;
-
-        // Metin okuma objesini önceden hafızaya alıyoruz (Gecikmeyi sıfırlamak için)
-        if ('speechSynthesis' in window) {
-            speechUtterance = new SpeechSynthesisUtterance("MAL SEMANUR HER ŞEYE İNANMA MÖÖÖÖÖÖÖÖÖ");
-            speechUtterance.lang = "tr-TR";
-            speechUtterance.rate = 0.9;
-        }
+        let audio = document.getElementById('mooAudio');
 
         function openBox() {
             if (isOpened) return;
             isOpened = true;
 
-            // Kullanıcı kutuya ilk tıkladığında Ses Motorunu (AudioContext) başlatıp hazıra alıyoruz
-            let AudioContext = window.AudioContext || window.webkitAudioContext;
-            audioCtx = new AudioContext();
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
+            // Kutunun açıldığı ilk dokunuşta sesi hazırlıyoruz
+            audio.play().then(() => {
+                audio.pause();
+                audio.currentTime = 0;
+            }).catch(() => {});
 
             document.getElementById('box').classList.add('open');
             document.getElementById('hintText').innerText = "Hediye Kodunuz Hazır!";
@@ -183,46 +179,14 @@
             }, 500);
         }
 
-        function playInstantMoo() {
-            if (!audioCtx) {
-                let AudioContext = window.AudioContext || window.webkitAudioContext;
-                audioCtx = new AudioContext();
-            }
-            
-            // Donanım düzeyinde 0 ms gecikmeyle anında çalan Mö ses sentezleyicisi
-            let osc = audioCtx.createOscillator();
-            let gain = audioCtx.createGain();
-
-            osc.type = 'sawtooth';
-            let now = audioCtx.currentTime;
-            
-            osc.frequency.setValueAtTime(150, now);
-            osc.frequency.exponentialRampToValueAtTime(75, now + 1.6);
-
-            gain.gain.setValueAtTime(0.9, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 1.6);
-
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-
-            osc.start(now);
-            osc.stop(now + 1.6);
-        }
-
         function copyCode() {
-            // Ekrana anında resmi ve yazıyı getir
             document.getElementById('mainUI').style.display = 'none';
             document.getElementById('cowContainer').style.display = 'block';
             document.getElementById('fullCow').style.display = 'block';
 
-            // 1. Sıfır gecikmeli donanımsal ses
-            playInstantMoo();
-
-            // 2. Önceden hazırlanmış metin okuma
-            if (speechUtterance && 'speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                window.speechSynthesis.speak(speechUtterance);
-            }
+            // Instagram dahili tarayıcısında anında ses tetikleme
+            audio.currentTime = 0;
+            audio.play().catch(e => console.log(e));
         }
     </script>
 
