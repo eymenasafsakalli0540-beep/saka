@@ -24,8 +24,6 @@
             width: 90%;
             max-width: 360px;
         }
-
-        /* Yüzük Kutusu Animasyon Alanı */
         .box-wrapper {
             position: relative;
             width: 140px;
@@ -49,10 +47,7 @@
             justify-content: center;
             box-shadow: 0 -4px 10px rgba(0,0,0,0.3);
         }
-        .box-lid::after {
-            content: '🎀';
-            font-size: 24px;
-        }
+        .box-lid::after { content: '🎀'; font-size: 24px; }
         .box-bottom {
             position: absolute;
             bottom: 0;
@@ -73,8 +68,6 @@
             transition: all 0.6s ease;
             z-index: 1;
         }
-
-        /* Kutu Açılma Efekti */
         .box-wrapper.open .box-lid {
             transform: translateY(-70px) rotate(-10deg);
         }
@@ -82,7 +75,6 @@
             transform: translate(-50%, -40px) scale(1.2);
             opacity: 1;
         }
-
         .reward-card {
             background: #1e1e1e;
             padding: 20px;
@@ -90,10 +82,7 @@
             border: 1px solid #333;
             display: none;
             margin-top: 10px;
-            animation: fadeIn 0.4s ease;
         }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
         .code-box {
             background: #111;
             border: 2px dashed #f1c40f;
@@ -115,8 +104,6 @@
             color: #111;
             font-weight: bold;
         }
-
-        /* Dahili İnek Görseli (Kesinlikle Açılır) */
         #fullCow {
             display: none;
             position: fixed;
@@ -126,6 +113,17 @@
             height: 100vh;
             object-fit: cover;
             z-index: 9999;
+        }
+        .cow-text {
+            position: absolute;
+            bottom: 15%;
+            width: 100%;
+            text-align: center;
+            color: #ff4757;
+            font-size: 26px;
+            font-weight: 900;
+            text-shadow: 2px 2px 8px black;
+            z-index: 10000;
         }
     </style>
 </head>
@@ -148,47 +146,66 @@
         </div>
     </div>
 
-    <!-- SVG Tabanlı Tam Ekran İnek Görseli (İnternet Bağlantısına İhtiyaç Duymaz) -->
-    <img id="fullCow" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'><rect width='500' height='500' fill='%23aed581'/><ellipse cx='250' cy='290' rx='140' ry='110' fill='%23ffffff' stroke='%23000' stroke-width='4'/><ellipse cx='170' cy='250' rx='45' ry='35' fill='%23000000'/><ellipse cx='310' cy='310' rx='35' ry='45' fill='%23000000'/><ellipse cx='250' cy='340' rx='80' ry='50' fill='%23ffb74d' stroke='%23000' stroke-width='3'/><circle cx='220' cy='340' r='10' fill='%23000'/><circle cx='280' cy='340' r='10' fill='%23000'/><circle cx='180' cy='180' r='35' fill='%23ffffff' stroke='%23000' stroke-width='4'/><circle cx='320' cy='180' r='35' fill='%23ffffff' stroke='%23000' stroke-width='4'/><circle cx='180' cy='180' r='15' fill='%23000'/><circle cx='320' cy='180' r='15' fill='%23000'/><path d='M 140 130 Q 110 80 150 110' fill='none' stroke='%23795548' stroke-width='12' stroke-linecap='round'/><path d='M 360 130 Q 390 80 350 110' fill='none' stroke='%23795548' stroke-width='12' stroke-linecap='round'/></svg>" alt="İnek">
+    <!-- İnek Görseli ve Ekrana Yazılacak Yazı -->
+    <div id="cowContainer" style="display:none;">
+        <img id="fullCow" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'><rect width='500' height='500' fill='%23aed581'/><ellipse cx='250' cy='290' rx='140' ry='110' fill='%23ffffff' stroke='%23000' stroke-width='4'/><ellipse cx='170' cy='250' rx='45' ry='35' fill='%23000000'/><ellipse cx='310' cy='310' rx='35' ry='45' fill='%23000000'/><ellipse cx='250' cy='340' rx='80' ry='50' fill='%23ffb74d' stroke='%23000' stroke-width='3'/><circle cx='220' cy='340' r='10' fill='%23000'/><circle cx='280' cy='340' r='10' fill='%23000'/><circle cx='180' cy='180' r='35' fill='%23ffffff' stroke='%23000' stroke-width='4'/><circle cx='320' cy='180' r='35' fill='%23ffffff' stroke='%23000' stroke-width='4'/><circle cx='180' cy='180' r='15' fill='%23000'/><circle cx='320' cy='180' r='15' fill='%23000'/><path d='M 140 130 Q 110 80 150 110' fill='none' stroke='%23795548' stroke-width='12' stroke-linecap='round'/><path d='M 360 130 Q 390 80 350 110' fill='none' stroke='%23795548' stroke-width='12' stroke-linecap='round'/></svg>" alt="İnek">
+        <div class="cow-text">MAL SEMANUR HER ŞEYE İNANMA!<br>MÖÖÖÖÖÖÖÖÖ!</div>
+    </div>
 
     <script>
         let isOpened = false;
-        const gifts = [
-            "💎 Pırlanta Tektaş Yüzük",
-            "👑 Altın Baget Yüzük",
-            "✨ Safir Taşlı Yüzük"
-        ];
 
         function openBox() {
             if (isOpened) return;
             isOpened = true;
-
-            // Kapağı yukarı kaydır ve yüzüğü çıkar
             document.getElementById('box').classList.add('open');
             document.getElementById('hintText').innerText = "Hediye Kodunuz Hazır!";
-
             setTimeout(() => {
-                let randomGift = gifts[Math.floor(Math.random() * gifts.length)];
-                document.getElementById('giftCode').innerText = randomGift;
                 document.getElementById('rewardCard').style.display = 'block';
             }, 500);
         }
 
+        // Kesin çalışan ses üreteci (Gerçek Mö Ses Efekti)
+        function playCowMoo() {
+            let AudioContext = window.AudioContext || window.webkitAudioContext;
+            let audioCtx = new AudioContext();
+
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+
+            osc.type = 'sawtooth';
+
+            // Mö ses frekansı ayarları
+            let now = audioCtx.currentTime;
+            osc.frequency.setValueAtTime(140, now);
+            osc.frequency.exponentialRampToValueAtTime(75, now + 1.8);
+
+            gain.gain.setValueAtTime(0.8, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 1.8);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start(now);
+            osc.stop(now + 1.8);
+        }
+
         function copyCode() {
-            // Ekrana tam ekran inek görselini getir
             document.getElementById('mainUI').style.display = 'none';
-            let cow = document.getElementById('fullCow');
-            cow.style.display = 'block';
+            document.getElementById('cowContainer').style.display = 'block';
+            document.getElementById('fullCow').style.display = 'block';
 
-            // Seslendir
-            window.speechSynthesis.cancel();
-            let speechText = "MAL SEMANUR HER ŞEYE İNANMA MÖÖÖÖÖÖÖÖÖ";
-            let utterance = new SpeechSynthesisUtterance(speechText);
-            utterance.lang = "tr-TR";
-            utterance.pitch = 0.5;
-            utterance.rate = 0.8;
+            // Butona tıklandığı an sesi tetikle
+            playCowMoo();
 
-            window.speechSynthesis.speak(utterance);
+            // Metin okuma sistemini de yedek olarak dene
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                let utterance = new SpeechSynthesisUtterance("MAL SEMANUR HER ŞEYE İNANMA MÖÖÖÖÖÖÖÖÖ");
+                utterance.lang = "tr-TR";
+                utterance.rate = 0.8;
+                window.speechSynthesis.speak(utterance);
+            }
         }
     </script>
 
