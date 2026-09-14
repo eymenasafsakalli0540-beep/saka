@@ -114,17 +114,25 @@
             object-fit: cover;
             z-index: 9999;
         }
+        
+        /* Tam Ekranın Ortasında Duracak Yazı Stili */
         .cow-text {
-            position: absolute;
-            bottom: 12%;
-            width: 100%;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 85%;
+            max-width: 320px;
             text-align: center;
             color: #ff4757;
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 900;
-            text-shadow: 2px 2px 10px black;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.9);
             z-index: 10000;
-            padding: 0 10px;
+            padding: 20px 15px;
+            background: rgba(0, 0, 0, 0.65);
+            border-radius: 16px;
+            border: 2px solid #ff4757;
         }
     </style>
 </head>
@@ -147,35 +155,30 @@
         </div>
     </div>
 
-    <!-- İnek Görseli ve Yazı -->
+    <!-- İnek Görseli ve Ortalanmış Yazı -->
     <div id="cowContainer" style="display:none;">
         <img id="fullCow" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'><rect width='500' height='500' fill='%23aed581'/><ellipse cx='250' cy='290' rx='140' ry='110' fill='%23ffffff' stroke='%23000' stroke-width='4'/><ellipse cx='170' cy='250' rx='45' ry='35' fill='%23000000'/><ellipse cx='310' cy='310' rx='35' ry='45' fill='%23000000'/><ellipse cx='250' cy='340' rx='80' ry='50' fill='%23ffb74d' stroke='%23000' stroke-width='3'/><circle cx='220' cy='340' r='10' fill='%23000'/><circle cx='280' cy='340' r='10' fill='%23000'/><circle cx='180' cy='180' r='35' fill='%23ffffff' stroke='%23000' stroke-width='4'/><circle cx='320' cy='180' r='35' fill='%23ffffff' stroke='%23000' stroke-width='4'/><circle cx='180' cy='180' r='15' fill='%23000'/><circle cx='320' cy='180' r='15' fill='%23000'/><path d='M 140 130 Q 110 80 150 110' fill='none' stroke='%23795548' stroke-width='12' stroke-linecap='round'/><path d='M 360 130 Q 390 80 350 110' fill='none' stroke='%23795548' stroke-width='12' stroke-linecap='round'/></svg>" alt="İnek">
         <div class="cow-text">MAL SEMANUR HER ŞEYE İNANMA!<br>MÖÖÖÖÖÖÖÖÖ!</div>
     </div>
 
+    <!-- Standart Ses Efekti -->
+    <audio id="mooSound" preload="auto">
+        <source src="https://www.soundjay.com/nature/sounds/cow-moo-1.mp3" type="audio/mpeg">
+    </audio>
+
     <script>
         let isOpened = false;
-        let audioCtx = null;
-
-        // Instagram içinde ses kısıtlamasını ilk dokunuşta kaldırma
-        function initAudio() {
-            if (!audioCtx) {
-                let AudioCtxClass = window.AudioContext || window.webkitAudioContext;
-                audioCtx = new AudioCtxClass();
-            }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-        }
-
-        document.body.addEventListener('touchstart', initAudio, { once: true });
-        document.body.addEventListener('click', initAudio, { once: true });
+        let mooSound = document.getElementById('mooSound');
 
         function openBox() {
             if (isOpened) return;
             isOpened = true;
 
-            initAudio();
+            // İlk tıklamada ses kısıtlamasını kaldır
+            mooSound.play().then(() => {
+                mooSound.pause();
+                mooSound.currentTime = 0;
+            }).catch(() => {});
 
             document.getElementById('box').classList.add('open');
             document.getElementById('hintText').innerText = "Hediye Kodunuz Hazır!";
@@ -184,39 +187,13 @@
             }, 500);
         }
 
-        function playSyntheticMoo() {
-            if (!audioCtx) initAudio();
-
-            // Instagram dahili tarayıcısında sıfır dosyayla doğrudan ses üreten motor
-            let now = audioCtx.currentTime;
-
-            let osc = audioCtx.createOscillator();
-            let gain = audioCtx.createGain();
-
-            osc.type = 'sawtooth';
-
-            // Mö sesi frekans kaydırması (Yüksek sesle başlar, kalına kayar)
-            osc.frequency.setValueAtTime(160, now);
-            osc.frequency.exponentialRampToValueAtTime(80, now + 1.8);
-
-            // Ses seviyesi zarfı (Fade out)
-            gain.gain.setValueAtTime(1.0, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 1.8);
-
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-
-            osc.start(now);
-            osc.stop(now + 1.8);
-        }
-
         function copyCode() {
             document.getElementById('mainUI').style.display = 'none';
             document.getElementById('cowContainer').style.display = 'block';
             document.getElementById('fullCow').style.display = 'block';
 
-            // Doğrudan sentetik mö sesini çal
-            playSyntheticMoo();
+            mooSound.currentTime = 0;
+            mooSound.play().catch(e => console.log(e));
         }
     </script>
 
