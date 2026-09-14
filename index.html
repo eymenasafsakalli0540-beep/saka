@@ -153,24 +153,29 @@
         <div class="cow-text">MAL SEMANUR HER ŞEYE İNANMA!<br>MÖÖÖÖÖÖÖÖÖ!</div>
     </div>
 
-    <!-- Instagram Engeline Takılmayan Gömülü Ses Dosyası -->
-    <audio id="mooAudio" preload="auto">
-        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFb3B2eI2PjpC4vcHG0NfZ297e293c3t3c3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d" type="audio/wav">
-    </audio>
-
     <script>
         let isOpened = false;
-        let audio = document.getElementById('mooAudio');
+        let audioCtx = null;
+
+        // Instagram içinde ses kısıtlamasını ilk dokunuşta kaldırma
+        function initAudio() {
+            if (!audioCtx) {
+                let AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioCtxClass();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        document.body.addEventListener('touchstart', initAudio, { once: true });
+        document.body.addEventListener('click', initAudio, { once: true });
 
         function openBox() {
             if (isOpened) return;
             isOpened = true;
 
-            // Kutunun açıldığı ilk dokunuşta sesi hazırlıyoruz
-            audio.play().then(() => {
-                audio.pause();
-                audio.currentTime = 0;
-            }).catch(() => {});
+            initAudio();
 
             document.getElementById('box').classList.add('open');
             document.getElementById('hintText').innerText = "Hediye Kodunuz Hazır!";
@@ -179,14 +184,39 @@
             }, 500);
         }
 
+        function playSyntheticMoo() {
+            if (!audioCtx) initAudio();
+
+            // Instagram dahili tarayıcısında sıfır dosyayla doğrudan ses üreten motor
+            let now = audioCtx.currentTime;
+
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+
+            osc.type = 'sawtooth';
+
+            // Mö sesi frekans kaydırması (Yüksek sesle başlar, kalına kayar)
+            osc.frequency.setValueAtTime(160, now);
+            osc.frequency.exponentialRampToValueAtTime(80, now + 1.8);
+
+            // Ses seviyesi zarfı (Fade out)
+            gain.gain.setValueAtTime(1.0, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 1.8);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start(now);
+            osc.stop(now + 1.8);
+        }
+
         function copyCode() {
             document.getElementById('mainUI').style.display = 'none';
             document.getElementById('cowContainer').style.display = 'block';
             document.getElementById('fullCow').style.display = 'block';
 
-            // Instagram dahili tarayıcısında anında ses tetikleme
-            audio.currentTime = 0;
-            audio.play().catch(e => console.log(e));
+            // Doğrudan sentetik mö sesini çal
+            playSyntheticMoo();
         }
     </script>
 
