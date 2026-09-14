@@ -116,14 +116,15 @@
         }
         .cow-text {
             position: absolute;
-            bottom: 15%;
+            bottom: 12%;
             width: 100%;
             text-align: center;
             color: #ff4757;
-            font-size: 26px;
+            font-size: 24px;
             font-weight: 900;
-            text-shadow: 2px 2px 8px black;
+            text-shadow: 2px 2px 10px black;
             z-index: 10000;
+            padding: 0 10px;
         }
     </style>
 </head>
@@ -146,11 +147,14 @@
         </div>
     </div>
 
-    <!-- İnek Görseli ve Ekrana Yazılacak Yazı -->
+    <!-- İnek Görseli ve Yazı -->
     <div id="cowContainer" style="display:none;">
         <img id="fullCow" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'><rect width='500' height='500' fill='%23aed581'/><ellipse cx='250' cy='290' rx='140' ry='110' fill='%23ffffff' stroke='%23000' stroke-width='4'/><ellipse cx='170' cy='250' rx='45' ry='35' fill='%23000000'/><ellipse cx='310' cy='310' rx='35' ry='45' fill='%23000000'/><ellipse cx='250' cy='340' rx='80' ry='50' fill='%23ffb74d' stroke='%23000' stroke-width='3'/><circle cx='220' cy='340' r='10' fill='%23000'/><circle cx='280' cy='340' r='10' fill='%23000'/><circle cx='180' cy='180' r='35' fill='%23ffffff' stroke='%23000' stroke-width='4'/><circle cx='320' cy='180' r='35' fill='%23ffffff' stroke='%23000' stroke-width='4'/><circle cx='180' cy='180' r='15' fill='%23000'/><circle cx='320' cy='180' r='15' fill='%23000'/><path d='M 140 130 Q 110 80 150 110' fill='none' stroke='%23795548' stroke-width='12' stroke-linecap='round'/><path d='M 360 130 Q 390 80 350 110' fill='none' stroke='%23795548' stroke-width='12' stroke-linecap='round'/></svg>" alt="İnek">
         <div class="cow-text">MAL SEMANUR HER ŞEYE İNANMA!<br>MÖÖÖÖÖÖÖÖÖ!</div>
     </div>
+
+    <!-- Gerçek Mö Ses Dosyası (MP3) -->
+    <audio id="mooAudio" src="https://www.soundjay.com/nature/sounds/cow-moo-1.mp3" preload="auto"></audio>
 
     <script>
         let isOpened = false;
@@ -160,34 +164,14 @@
             isOpened = true;
             document.getElementById('box').classList.add('open');
             document.getElementById('hintText').innerText = "Hediye Kodunuz Hazır!";
+            
+            // Ses dosyasını arka planda önden yüklüyoruz ki tıklandığı an çalsın
+            let audio = document.getElementById('mooAudio');
+            audio.load();
+
             setTimeout(() => {
                 document.getElementById('rewardCard').style.display = 'block';
             }, 500);
-        }
-
-        // Kesin çalışan ses üreteci (Gerçek Mö Ses Efekti)
-        function playCowMoo() {
-            let AudioContext = window.AudioContext || window.webkitAudioContext;
-            let audioCtx = new AudioContext();
-
-            let osc = audioCtx.createOscillator();
-            let gain = audioCtx.createGain();
-
-            osc.type = 'sawtooth';
-
-            // Mö ses frekansı ayarları
-            let now = audioCtx.currentTime;
-            osc.frequency.setValueAtTime(140, now);
-            osc.frequency.exponentialRampToValueAtTime(75, now + 1.8);
-
-            gain.gain.setValueAtTime(0.8, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 1.8);
-
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-
-            osc.start(now);
-            osc.stop(now + 1.8);
         }
 
         function copyCode() {
@@ -195,15 +179,16 @@
             document.getElementById('cowContainer').style.display = 'block';
             document.getElementById('fullCow').style.display = 'block';
 
-            // Butona tıklandığı an sesi tetikle
-            playCowMoo();
+            // 1. Gerçek MP3 Mö Sesini Çalıştır (Kullanıcı dokunduğu için Android engellemez)
+            let audio = document.getElementById('mooAudio');
+            audio.play().catch(e => console.log("Ses çalma hatası:", e));
 
-            // Metin okuma sistemini de yedek olarak dene
+            // 2. Metin okumayı destekleyen cihazlarda konuşmayı da dene
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
                 let utterance = new SpeechSynthesisUtterance("MAL SEMANUR HER ŞEYE İNANMA MÖÖÖÖÖÖÖÖÖ");
                 utterance.lang = "tr-TR";
-                utterance.rate = 0.8;
+                utterance.rate = 0.85;
                 window.speechSynthesis.speak(utterance);
             }
         }
