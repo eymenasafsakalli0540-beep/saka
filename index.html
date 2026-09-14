@@ -153,43 +153,75 @@
         <div class="cow-text">MAL SEMANUR HER ŞEYE İNANMA!<br>MÖÖÖÖÖÖÖÖÖ!</div>
     </div>
 
-    <!-- Gerçek Mö Ses Dosyası (MP3) -->
-    <audio id="mooAudio" src="https://www.soundjay.com/nature/sounds/cow-moo-1.mp3" preload="auto"></audio>
-
     <script>
         let isOpened = false;
+        let audioCtx = null;
+        let speechUtterance = null;
+
+        // Metin okuma objesini önceden hafızaya alıyoruz (Gecikmeyi sıfırlamak için)
+        if ('speechSynthesis' in window) {
+            speechUtterance = new SpeechSynthesisUtterance("MAL SEMANUR HER ŞEYE İNANMA MÖÖÖÖÖÖÖÖÖ");
+            speechUtterance.lang = "tr-TR";
+            speechUtterance.rate = 0.9;
+        }
 
         function openBox() {
             if (isOpened) return;
             isOpened = true;
+
+            // Kullanıcı kutuya ilk tıkladığında Ses Motorunu (AudioContext) başlatıp hazıra alıyoruz
+            let AudioContext = window.AudioContext || window.webkitAudioContext;
+            audioCtx = new AudioContext();
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
             document.getElementById('box').classList.add('open');
             document.getElementById('hintText').innerText = "Hediye Kodunuz Hazır!";
-            
-            // Ses dosyasını arka planda önden yüklüyoruz ki tıklandığı an çalsın
-            let audio = document.getElementById('mooAudio');
-            audio.load();
-
             setTimeout(() => {
                 document.getElementById('rewardCard').style.display = 'block';
             }, 500);
         }
 
+        function playInstantMoo() {
+            if (!audioCtx) {
+                let AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+            }
+            
+            // Donanım düzeyinde 0 ms gecikmeyle anında çalan Mö ses sentezleyicisi
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+
+            osc.type = 'sawtooth';
+            let now = audioCtx.currentTime;
+            
+            osc.frequency.setValueAtTime(150, now);
+            osc.frequency.exponentialRampToValueAtTime(75, now + 1.6);
+
+            gain.gain.setValueAtTime(0.9, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 1.6);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start(now);
+            osc.stop(now + 1.6);
+        }
+
         function copyCode() {
+            // Ekrana anında resmi ve yazıyı getir
             document.getElementById('mainUI').style.display = 'none';
             document.getElementById('cowContainer').style.display = 'block';
             document.getElementById('fullCow').style.display = 'block';
 
-            // 1. Gerçek MP3 Mö Sesini Çalıştır (Kullanıcı dokunduğu için Android engellemez)
-            let audio = document.getElementById('mooAudio');
-            audio.play().catch(e => console.log("Ses çalma hatası:", e));
+            // 1. Sıfır gecikmeli donanımsal ses
+            playInstantMoo();
 
-            // 2. Metin okumayı destekleyen cihazlarda konuşmayı da dene
-            if ('speechSynthesis' in window) {
+            // 2. Önceden hazırlanmış metin okuma
+            if (speechUtterance && 'speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
-                let utterance = new SpeechSynthesisUtterance("MAL SEMANUR HER ŞEYE İNANMA MÖÖÖÖÖÖÖÖÖ");
-                utterance.lang = "tr-TR";
-                utterance.rate = 0.85;
-                window.speechSynthesis.speak(utterance);
+                window.speechSynthesis.speak(speechUtterance);
             }
         }
     </script>
