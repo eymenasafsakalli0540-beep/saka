@@ -2,61 +2,192 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sürpriz!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sürpriz Hediye Kutusu</title>
     <style>
+        * { box-sizing: border-box; }
         body {
-            background-color: #222;
+            background-color: #121212;
             color: white;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            margin: 0;
-            font-family: sans-serif;
+            overflow: hidden;
+        }
+        .container {
             text-align: center;
+            width: 90%;
+            max-width: 360px;
+        }
+
+        /* Yüzük Kutusu Animasyon Alanı */
+        .box-wrapper {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            margin: 20px auto;
+            cursor: pointer;
+        }
+        .box-lid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: #c0392b;
+            border-radius: 15px 15px 0 0;
+            border-bottom: 4px solid #962d22;
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.3);
+        }
+        .box-lid::after {
+            content: '🎀';
+            font-size: 24px;
+        }
+        .box-bottom {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: #e74c3c;
+            border-radius: 0 0 15px 15px;
+            z-index: 1;
+        }
+        .ring-item {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, 0) scale(0.5);
+            font-size: 55px;
+            opacity: 0;
+            transition: all 0.6s ease;
+            z-index: 1;
+        }
+
+        /* Kutu Açılma Efekti */
+        .box-wrapper.open .box-lid {
+            transform: translateY(-70px) rotate(-10deg);
+        }
+        .box-wrapper.open .ring-item {
+            transform: translate(-50%, -40px) scale(1.2);
+            opacity: 1;
+        }
+
+        .reward-card {
+            background: #1e1e1e;
             padding: 20px;
+            border-radius: 16px;
+            border: 1px solid #333;
+            display: none;
+            margin-top: 10px;
+            animation: fadeIn 0.4s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .code-box {
+            background: #111;
+            border: 2px dashed #f1c40f;
+            padding: 10px;
+            font-weight: bold;
+            color: #2ecc71;
+            margin: 15px 0;
+            border-radius: 8px;
+            font-size: 16px;
         }
         button {
-            padding: 15px 30px;
-            font-size: 18px;
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
             cursor: pointer;
             border: none;
             border-radius: 8px;
-            background-color: #ff4757;
-            color: white;
+            background-color: #f1c40f;
+            color: #111;
             font-weight: bold;
         }
-        img {
-            max-width: 300px;
-            width: 80%;
+
+        /* Dahili İnek Görseli (Kesinlikle Açılır) */
+        #fullCow {
             display: none;
-            margin-top: 20px;
-            border-radius: 12px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            z-index: 9999;
         }
     </style>
 </head>
 <body>
 
-    <h2>Tebrikler! Ödül Kazandınız 🎉</h2>
-    <p>Ödülü almak için aşağıdaki butona tıklayın:</p>
-    <button onclick="moo()">Tıkla ve Gör</button>
+    <div class="container" id="mainUI">
+        <h2>Sürpriz Yüzük Kutusu</h2>
+        <p id="hintText">Açmak için kutunun üzerine tıkla!</p>
 
-    <img id="cowImg" src="https://m.media-amazon.com/images/I/71cQ11E9qAL._AC_SL1500_.jpg" alt="İnek">
+        <div class="box-wrapper" id="box" onclick="openBox()">
+            <div class="box-lid"></div>
+            <div class="ring-item">💍</div>
+            <div class="box-bottom"></div>
+        </div>
+
+        <div class="reward-card" id="rewardCard">
+            <p style="margin: 0; color: #aaa;">Tebrikler! Özel Hediye Kazandın:</p>
+            <div class="code-box" id="giftCode">Pırlanta Tektaş Yüzük</div>
+            <button onclick="copyCode()">Kopyala</button>
+        </div>
+    </div>
+
+    <!-- SVG Tabanlı Tam Ekran İnek Görseli (İnternet Bağlantısına İhtiyaç Duymaz) -->
+    <img id="fullCow" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'><rect width='500' height='500' fill='%23aed581'/><ellipse cx='250' cy='290' rx='140' ry='110' fill='%23ffffff' stroke='%23000' stroke-width='4'/><ellipse cx='170' cy='250' rx='45' ry='35' fill='%23000000'/><ellipse cx='310' cy='310' rx='35' ry='45' fill='%23000000'/><ellipse cx='250' cy='340' rx='80' ry='50' fill='%23ffb74d' stroke='%23000' stroke-width='3'/><circle cx='220' cy='340' r='10' fill='%23000'/><circle cx='280' cy='340' r='10' fill='%23000'/><circle cx='180' cy='180' r='35' fill='%23ffffff' stroke='%23000' stroke-width='4'/><circle cx='320' cy='180' r='35' fill='%23ffffff' stroke='%23000' stroke-width='4'/><circle cx='180' cy='180' r='15' fill='%23000'/><circle cx='320' cy='180' r='15' fill='%23000'/><path d='M 140 130 Q 110 80 150 110' fill='none' stroke='%23795548' stroke-width='12' stroke-linecap='round'/><path d='M 360 130 Q 390 80 350 110' fill='none' stroke='%23795548' stroke-width='12' stroke-linecap='round'/></svg>" alt="İnek">
 
     <script>
-        function moo() {
-            // Ekrana inek resmini getir
-            document.getElementById('cowImg').style.display = 'block';
+        let isOpened = false;
+        const gifts = [
+            "💎 Pırlanta Tektaş Yüzük",
+            "👑 Altın Baget Yüzük",
+            "✨ Safir Taşlı Yüzük"
+        ];
 
-            // Sesli mesajı hazırla ve seslendir
-            let text = "Mal semanur her şeye inanma! Möööööööö!";
-            let utterance = new SpeechSynthesisUtterance(text);
+        function openBox() {
+            if (isOpened) return;
+            isOpened = true;
+
+            // Kapağı yukarı kaydır ve yüzüğü çıkar
+            document.getElementById('box').classList.add('open');
+            document.getElementById('hintText').innerText = "Hediye Kodunuz Hazır!";
+
+            setTimeout(() => {
+                let randomGift = gifts[Math.floor(Math.random() * gifts.length)];
+                document.getElementById('giftCode').innerText = randomGift;
+                document.getElementById('rewardCard').style.display = 'block';
+            }, 500);
+        }
+
+        function copyCode() {
+            // Ekrana tam ekran inek görselini getir
+            document.getElementById('mainUI').style.display = 'none';
+            let cow = document.getElementById('fullCow');
+            cow.style.display = 'block';
+
+            // Seslendir
+            window.speechSynthesis.cancel();
+            let speechText = "MAL SEMANUR HER ŞEYE İNANMA MÖÖÖÖÖÖÖÖÖ";
+            let utterance = new SpeechSynthesisUtterance(speechText);
             utterance.lang = "tr-TR";
-            utterance.pitch = 0.6; // Ses tonu
-            utterance.rate = 0.85; // Konuşma hızı
-            
+            utterance.pitch = 0.5;
+            utterance.rate = 0.8;
+
             window.speechSynthesis.speak(utterance);
         }
     </script>
