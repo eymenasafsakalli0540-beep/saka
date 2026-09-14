@@ -115,7 +115,6 @@
             z-index: 9999;
         }
         
-        /* Tam Ekranın Ortasında Duracak Yazı Stili */
         .cow-text {
             position: fixed;
             top: 50%;
@@ -139,18 +138,19 @@
 <body>
 
     <div class="container" id="mainUI">
-        <h2>Sürpriz Yüzük Kutusu</h2>
+        <h2>Sürpriz Hediye Kutusu</h2>
         <p id="hintText">Açmak için kutunun üzerine tıkla!</p>
 
         <div class="box-wrapper" id="box" onclick="openBox()">
             <div class="box-lid"></div>
-            <div class="ring-item">💍</div>
+            <!-- Yüzük yerine Beyin emojisi eklendi -->
+            <div class="ring-item">🧠</div>
             <div class="box-bottom"></div>
         </div>
 
         <div class="reward-card" id="rewardCard">
             <p style="margin: 0; color: #aaa;">Tebrikler! Özel Hediye Kazandın:</p>
-            <div class="code-box" id="giftCode">Pırlanta Tektaş Yüzük</div>
+            <div class="code-box" id="giftCode">Beyin'li Kolye / IQ Artışı</div>
             <button onclick="copyCode()">Kopyala</button>
         </div>
     </div>
@@ -158,7 +158,7 @@
     <!-- İnek Görseli ve Ortalanmış Yazı -->
     <div id="cowContainer" style="display:none;">
         <img id="fullCow" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'><rect width='500' height='500' fill='%23aed581'/><ellipse cx='250' cy='290' rx='140' ry='110' fill='%23ffffff' stroke='%23000' stroke-width='4'/><ellipse cx='170' cy='250' rx='45' ry='35' fill='%23000000'/><ellipse cx='310' cy='310' rx='35' ry='45' fill='%23000000'/><ellipse cx='250' cy='340' rx='80' ry='50' fill='%23ffb74d' stroke='%23000' stroke-width='3'/><circle cx='220' cy='340' r='10' fill='%23000'/><circle cx='280' cy='340' r='10' fill='%23000'/><circle cx='180' cy='180' r='35' fill='%23ffffff' stroke='%23000' stroke-width='4'/><circle cx='320' cy='180' r='35' fill='%23ffffff' stroke='%23000' stroke-width='4'/><circle cx='180' cy='180' r='15' fill='%23000'/><circle cx='320' cy='180' r='15' fill='%23000'/><path d='M 140 130 Q 110 80 150 110' fill='none' stroke='%23795548' stroke-width='12' stroke-linecap='round'/><path d='M 360 130 Q 390 80 350 110' fill='none' stroke='%23795548' stroke-width='12' stroke-linecap='round'/></svg>" alt="İnek">
-        <div class="cow-text">MAL SEMANUR HER ŞEYE İNANMA!<br>MÖÖÖÖÖÖÖÖÖ!</div>
+        <div class="cow-text">MAL YUSUF HER ŞEYE İNANMA!<br>MÖÖÖÖÖÖÖÖÖ!</div>
     </div>
 
     <!-- Standart Ses Efekti -->
@@ -174,7 +174,6 @@
             if (isOpened) return;
             isOpened = true;
 
-            // İlk tıklamada ses kısıtlamasını kaldır
             mooSound.play().then(() => {
                 mooSound.pause();
                 mooSound.currentTime = 0;
